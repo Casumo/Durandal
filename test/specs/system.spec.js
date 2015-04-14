@@ -14,5 +14,19 @@
                 expect(isDebugging).toBe(true);
             });
         });
+
+        describe('acquire', function() {
+
+            it('should resolve preloaded modules synchronously', function() {
+
+                var spy = jasmine.createSpy('spy');
+
+                sut.acquire('durandal/system').then(spy);
+
+                expect(spy.calls.argsFor(0)[0]).toBe(sut);
+
+            });
+
+        });
     });
 });
