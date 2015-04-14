@@ -113,6 +113,21 @@ define(['require', 'jquery'], function(require, $) {
         throw exception;
     };
 
+    function allModulesAreDefined(modules) {
+        return modules.reduce(function(memo, module) {
+            return memo && require.defined(module);
+        }, true);
+    }
+
+    function trySynchronousAcquire(modules, callback) {
+
+        if (allModulesAreDefined(modules)) {
+            callback(modules.map(function(module) {
+                return require(module);
+            }));
+        }
+    }
+
     /**
      * @class SystemModule
      * @static
@@ -270,6 +285,22 @@ define(['require', 'jquery'], function(require, $) {
             }
 
             return this.defer(function(dfd) {
+
+                var wasLoadedSynchronously = false;
+
+                trySynchronousAcquire(modules, function(args) {
+                    if(args.length > 1 || arrayRequest){
+                        dfd.resolve(slice.call(args, 0));
+                    }else{
+                        dfd.resolve(args[0]);
+                    }
+                    wasLoadedSynchronously = true;
+                });
+
+                if (wasLoadedSynchronously) {
+                    return;
+                }
+
                 require(modules, function() {
                     var args = arguments;
                     setTimeout(function() {
