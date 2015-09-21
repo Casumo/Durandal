@@ -72,16 +72,17 @@ define(['durandal/system', 'durandal/viewLocator', 'durandal/binder', 'durandal/
             compositionCompleteCallbacks = [];
             
             if (!error) {
+                ko.ignoreDependencies(function() {
+                    var i = callBacks.length;
 
-                var i = callBacks.length;
-
-                while (i--) {
-                    try {
-                        callBacks[i]();
-                    } catch (e) {
-                        onError(context, e, element);
+                    while (i--) {
+                        try {
+                            callBacks[i]();
+                        } catch (e) {
+                            onError(context, e, element);
+                        }
                     }
-                }
+                });
             }
         }
 
