@@ -101,11 +101,14 @@ define(['durandal/system', 'durandal/viewLocator', 'durandal/binder', 'durandal/
             var result;
 
             try{
-                if(system.isArray(context.activationData)) {
-                    result = context.model.activate.apply(context.model, context.activationData);
-                } else {
-                    result = context.model.activate(context.activationData);
-                }
+
+                ko.ignoreDependencies(function() {
+                    if(system.isArray(context.activationData)) {
+                        result = context.model.activate.apply(context.model, context.activationData);
+                    } else {
+                        result = context.model.activate(context.activationData);
+                    }
+                });
 
                 if(result && result.then) {
                     result.then(successCallback, function(reason) {
@@ -135,22 +138,27 @@ define(['durandal/system', 'durandal/viewLocator', 'durandal/binder', 'durandal/
 
         if (context.child) {
             try{
-                if (context.model && context.model.attached) {
-                    if (context.composingNewView || context.alwaysTriggerAttach) {
-                        context.model.attached(context.child, context.parent, context);
-                    }
-                }
 
-                if (context.attached) {
-                    context.attached(context.child, context.parent, context);
-                }
+                ko.ignoreDependencies(function() {
+                    if (context.model && context.model.attached) {
+                        if (context.composingNewView || context.alwaysTriggerAttach) {
+                            context.model.attached(context.child, context.parent, context);
+                        }
+                    }
+
+                    if (context.attached) {
+                        context.attached(context.child, context.parent, context);
+                    }
+                });
 
                 context.child.setAttribute(activeViewAttributeName, true);
 
                 if (context.composingNewView && context.model && context.model.detached) {
                     ko.utils.domNodeDisposal.addDisposeCallback(context.child, function () {
                         try{
-                            context.model.detached(context.child, context.parent, context);
+                            ko.ignoreDependencies(function() {
+                                context.model.detached(context.child, context.parent, context);
+                            });
                         }catch(e2){
                             onError(context, e2, element);
                         }
@@ -493,7 +501,9 @@ define(['durandal/system', 'durandal/viewLocator', 'durandal/binder', 'durandal/
                     }
 
                     if (context.binding) {
-                        context.binding(context.child, context.parent, context);
+                        ko.ignoreDependencies(function() {
+                            context.binding(context.child, context.parent, context);
+                        });
                     }
 
                     if (context.preserveContext && context.bindingContext) {

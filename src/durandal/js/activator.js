@@ -63,7 +63,9 @@ define(['durandal/system', 'knockout'], function (system, ko) {
 
             var result;
             try {
-                result = item.deactivate(close);
+                ko.ignoreDependencies(function() {
+                    result = item.deactivate(close);
+                });
             } catch(error) {
                 system.log('ERROR: ' + error.message, error);
                 dfd.resolve(false);
@@ -101,7 +103,9 @@ define(['durandal/system', 'knockout'], function (system, ko) {
             system.log('Activating', newItem);
 
             try {
-                result = invoke(newItem, 'activate', activationData);
+                ko.ignoreDependencies(function() {
+                    result = invoke(newItem, 'activate', activationData);
+                });
             } catch (error) {
                 system.log('ERROR: ' + error.message, error);
                 callback(false);
@@ -135,7 +139,9 @@ define(['durandal/system', 'knockout'], function (system, ko) {
                 if (item && item.canDeactivate && options.canDeactivate) {
                     var resultOrPromise;
                     try {
-                        resultOrPromise = item.canDeactivate(close);
+                        ko.ignoreDependencies(function() {
+                            resultOrPromise = item.canDeactivate(close);
+                        });
                     } catch (error) {
                         system.log('ERROR: ' + error.message, error);
                         dfd.resolve(false);
@@ -189,7 +195,9 @@ define(['durandal/system', 'knockout'], function (system, ko) {
             if (newItem && newItem.canActivate) {
                 var resultOrPromise;
                 try {
-                    resultOrPromise = invoke(newItem, 'canActivate', newActivationData);
+                    ko.ignoreDependencies(function() {
+                        resultOrPromise = invoke(newItem, 'canActivate', newActivationData);
+                    });
                 } catch (error) {
                     system.log('ERROR: ' + error.message, error);
                     dfd.resolve(false);
@@ -522,14 +530,12 @@ define(['durandal/system', 'knockout'], function (system, ko) {
                         var listLength = list.length;
 
                         function doDeactivate(item) {
-                            ko.ignoreDependencies(function() {
-                                computed.deactivateItem(item, close).then(function () {
-                                    results++;
-                                    items.remove(item);
-                                    if (results == listLength) {
-                                        dfd.resolve();
-                                    }
-                                });
+                            computed.deactivateItem(item, close).then(function () {
+                                results++;
+                                items.remove(item);
+                                if (results == listLength) {
+                                    dfd.resolve();
+                                }
                             });
                         }
 

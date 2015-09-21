@@ -68,7 +68,9 @@ define(['durandal/system', 'knockout'], function (system, ko) {
             binder.bindingComplete(data, view, instruction);
 
             if (obj && obj.bindingComplete) {
-                obj.bindingComplete(view);
+                ko.ignoreDependencies(function() {
+                    obj.bindingComplete(view);
+                });
             }
 
             ko.utils.domData.set(view, bindingInstructionKey, instruction);
